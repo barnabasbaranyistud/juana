@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Meglepetés 💜</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Georgia, serif;
+    background: linear-gradient(135deg, #e0c3fc 0%, #f3d9ff 50%, #c9b1ff 100%);
+    position: fixed;
+    touch-action: manipulation;
+  }
+
+  #scene {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  #startBtn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 22px 60px;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: #fff;
+    background: linear-gradient(135deg, #a55eea 0%, #6c2ec7 100%);
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(108, 46, 199, 0.4);
+    z-index: 100;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    font-family: inherit;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  #startBtn:active {
+    transform: translate(-50%, -50%) scale(0.95);
+    box-shadow: 0 5px 15px rgba(108, 46, 199, 0.4);
+  }
+
+  #startBtn.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, -50%) scale(0.8);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .pulse {
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 10px 30px rgba(108, 46, 199, 0.4); }
+    50% { box-shadow: 0 10px 40px rgba(108, 46, 199, 0.7), 0 0 0 15px rgba(165, 94, 234, 0.15); }
+  }
+
+  .flower {
+    position: absolute;
+    width: 120px;
+    height: 200px;
+    bottom: 0;
+    transform-origin: bottom center;
+    opacity: 0;
+  }
+
+  .flower.grow {
+    animation: grow 2s ease-out forwards;
+  }
+
+  @keyframes grow {
+    0% { opacity: 0; transform: scaleY(0) translateY(20px); }
+    30% { opacity: 1; }
+    100% { opacity: 1; transform: scaleY(1) translateY(0); }
+  }
+
+  .stem {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 4px;
+    height: 140px;
+    background: linear-gradient(to top, #4a7c3c, #6ab04c);
+    transform: translateX(-50%);
+    border-radius: 2px;
+  }
+
+  .leaf {
+    position: absolute;
+    width: 30px;
+    height: 18px;
+    background: #6ab04c;
+    border-radius: 0 100% 0 100%;
+  }
+
+  .leaf.left {
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-100%) rotate(-30deg);
+    border-radius: 100% 0 100% 0;
+  }
+
+  .leaf.right {
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(0) rotate(30deg);
+  }
+
+  .bloom {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 80px;
+    height: 80px;
+    transform: translateX(-50%);
+    animation: sway 4s ease-in-out infinite;
+  }
+
+  @keyframes sway {
+    0%, 100% { transform: translateX(-50%) rotate(-3deg); }
+    50% { transform: translateX(-50%) rotate(3deg); }
+  }
+
+  .petal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 30px;
+    height: 44px;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    transform-origin: 50% 100%;
+    opacity: 0;
+    animation: bloom 1.2s ease-out forwards;
+  }
+
+  @keyframes bloom {
+    0% { opacity: 0; transform: translate(-50%, -100%) rotate(var(--rot)) scale(0); }
+    100% { opacity: 1; transform: translate(-50%, -100%) rotate(var(--rot)) scale(1); }
+  }
+
+  .center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 22px;
+    height: 22px;
+    background: radial-gradient(circle, #ffd700, #ff9500);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 10px rgba(255, 165, 0, 0.6);
+    z-index: 10;
+    opacity: 0;
+    animation: fadeIn 0.5s ease-out 1s forwards;
+  }
+
+  @keyframes fadeIn {
+    to { opacity: 1; }
+  }
+
+  .rose {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 70px;
+    height: 70px;
+    transform: translate(-50%, -50%);
+  }
+
+  .rose-layer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+    animation: roseLayer 1.5s ease-out forwards;
+    box-shadow: inset -4px -6px 12px rgba(0,0,0,0.2), inset 4px 4px 10px rgba(255,255,255,0.25);
+  }
+
+  @keyframes roseLayer {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0) rotate(0deg); }
+    100% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(var(--rose-rot, 0deg)); }
+  }
+
+  .rose-petal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    transform-origin: 50% 100%;
+    opacity: 0;
+    animation: rosePetal 1.2s ease-out forwards;
+    box-shadow: inset 0 -4px 8px rgba(0,0,0,0.25);
+  }
+
+  @keyframes rosePetal {
+    0% { opacity: 0; transform: translate(-50%, -90%) rotate(var(--rot)) scale(0); }
+    100% { opacity: 1; transform: translate(-50%, -90%) rotate(var(--rot)) scale(1); }
+  }
+
+  .heart {
+    position: absolute;
+    font-size: 24px;
+    pointer-events: none;
+    animation: floatUp linear forwards;
+    opacity: 0;
+  }
+
+  @keyframes floatUp {
+    0% { opacity: 0; transform: translateY(0) scale(0.5); }
+    20% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(-110vh) scale(1.2) rotate(20deg); }
+  }
+
+  #message {
+    position: absolute;
+    top: 12%;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    color: #6c2ec7;
+    opacity: 0;
+    z-index: 50;
+    width: 90%;
+    pointer-events: none;
+  }
+
+  #message.show {
+    animation: messageAppear 2s ease-out 3.5s forwards;
+  }
+
+  @keyframes messageAppear {
+    0% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+    100% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  }
+
+  #message h1 {
+    font-size: 36px;
+    font-weight: 400;
+    font-style: italic;
+    text-shadow: 0 2px 12px rgba(255, 255, 255, 0.9);
+    font-family: Georgia, "Times New Roman", serif;
+  }
+
+  .sparkle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #fff, 0 0 20px #d8a4f5;
+    pointer-events: none;
+    animation: sparkleAnim 2s ease-out forwards;
+  }
+
+  @keyframes sparkleAnim {
+    0% { opacity: 0; transform: scale(0); }
+    50% { opacity: 1; transform: scale(1.5); }
+    100% { opacity: 0; transform: scale(0); }
+  }
+
+  #ground {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background: linear-gradient(to top, #6ab04c 0%, transparent 100%);
+    opacity: 0.3;
+    z-index: 1;
+  }
+
+  @media (max-width: 400px) {
+    #message h1 { font-size: 28px; }
+  }
+</style>
+</head>
+<body>
+<div id="scene">
+  <div id="ground"></div>
+  <div id="message">
+    <h1>Nekem a pékné 💜</h1>
+  </div>
+  <button id="startBtn" class="pulse">Meglepetés 💐</button>
+</div>
+
+<script>
+(function() {
+  const btn = document.getElementById('startBtn');
+  const scene = document.getElementById('scene');
+  const message = document.getElementById('message');
+
+  const purplePalettes = [
+    ['#6c2ec7', '#a55eea', '#d8a4f5'],
+    ['#8e44ad', '#b06ee6', '#e0c3fc'],
+    ['#5b2c9f', '#8e44ad', '#c39bd3'],
+    ['#7d3c98', '#bb8fce', '#e8daef'],
+    ['#4a148c', '#7b1fa2', '#ba68c8'],
+    ['#9c27b0', '#ce93d8', '#f3e5f5'],
+    ['#6a1b9a', '#ab47bc', '#e1bee7']
+  ];
+
+  const rosePalettes = [
+    ['#4a148c', '#6a1b9a', '#8e24aa'],
+    ['#6c2ec7', '#8e44ad', '#a55eea'],
+    ['#5b2c9f', '#7d3c98', '#9b59b6'],
+    ['#3b0764', '#581c87', '#7c3aed'],
+    ['#4c1d95', '#6d28d9', '#8b5cf6']
+  ];
+
+  function createDaisy(x, delay, scale, palette) {
+    const flower = document.createElement('div');
+    flower.className = 'flower';
+    flower.style.left = x + 'px';
+    flower.style.transform = `scale(${scale})`;
+    flower.style.animationDelay = delay + 's';
+    flower.style.zIndex = Math.floor(scale * 10);
+
+    const stem = document.createElement('div');
+    stem.className = 'stem';
+    flower.appendChild(stem);
+
+    const leafL = document.createElement('div');
+    leafL.className = 'leaf left';
+    flower.appendChild(leafL);
+
+    const leafR = document.createElement('div');
+    leafR.className = 'leaf right';
+    flower.appendChild(leafR);
+
+    const bloom = document.createElement('div');
+    bloom.className = 'bloom';
+
+    const petalCount = 8;
+    for (let i = 0; i < petalCount; i++) {
+      const petal = document.createElement('div');
+      petal.className = 'petal';
+      const rotation = (360 / petalCount) * i;
+      petal.style.setProperty('--rot', rotation + 'deg');
+      petal.style.animationDelay = (delay + 1.2 + i * 0.08) + 's';
+      petal.style.background = `radial-gradient(circle at 50% 80%, ${palette[2]}, ${palette[0]})`;
+      petal.style.boxShadow = `inset 0 -5px 10px ${palette[0]}`;
+      bloom.appendChild(petal);
+    }
+
+    const center = document.createElement('div');
+    center.className = 'center';
+    center.style.animationDelay = (delay + 1.8) + 's';
+    bloom.appendChild(center);
+
+    flower.appendChild(bloom);
+    flower.classList.add('grow');
+    return flower;
+  }
+
+  function createRose(x, delay, scale, palette) {
+    const flower = document.createElement('div');
+    flower.className = 'flower';
+    flower.style.left = x + 'px';
+    flower.style.transform = `scale(${scale})`;
+    flower.style.animationDelay = delay + 's';
+    flower.style.zIndex = Math.floor(scale * 10);
+
+    const stem = document.createElement('div');
+    stem.className = 'stem';
+    flower.appendChild(stem);
+
+    const leafL = document.createElement('div');
+    leafL.className = 'leaf left';
+    flower.appendChild(leafL);
+
+    const leafR = document.createElement('div');
+    leafR.className = 'leaf right';
+    flower.appendChild(leafR);
+
+    const bloom = document.createElement('div');
+    bloom.className = 'bloom';
+
+    const rose = document.createElement('div');
+    rose.className = 'rose';
+
+    // Outer petals - bigger, rounded
+    const outerPetals = 6;
+    for (let i = 0; i < outerPetals; i++) {
+      const petal = document.createElement('div');
+      petal.className = 'rose-petal';
+      const rotation = (360 / outerPetals) * i;
+      petal.style.setProperty('--rot', rotation + 'deg');
+      petal.style.animationDelay = (delay + 1.2 + i * 0.1) + 's';
+      petal.style.background = `radial-gradient(circle at 50% 70%, ${palette[2]}, ${palette[0]})`;
+      petal.style.width = '34px';
+      petal.style.height = '42px';
+      rose.appendChild(petal);
+    }
+
+    // Middle petals - offset rotation
+    const midPetals = 5;
+    for (let i = 0; i < midPetals; i++) {
+      const petal = document.createElement('div');
+      petal.className = 'rose-petal';
+      const rotation = (360 / midPetals) * i + 36;
+      petal.style.setProperty('--rot', rotation + 'deg');
+      petal.style.animationDelay = (delay + 1.5 + i * 0.08) + 's';
+      petal.style.background = `radial-gradient(circle at 50% 70%, ${palette[1]}, ${palette[0]})`;
+      petal.style.width = '24px';
+      petal.style.height = '30px';
+      rose.appendChild(petal);
+    }
+
+    // Inner bud
+    const innerLayer = document.createElement('div');
+    innerLayer.className = 'rose-layer';
+    innerLayer.style.width = '24px';
+    innerLayer.style.height = '24px';
+    innerLayer.style.background = `radial-gradient(circle at 40% 40%, ${palette[1]}, ${palette[0]})`;
+    innerLayer.style.animationDelay = (delay + 1.8) + 's';
+    innerLayer.style.setProperty('--rose-rot', '15deg');
+    rose.appendChild(innerLayer);
+
+    const core = document.createElement('div');
+    core.className = 'rose-layer';
+    core.style.width = '12px';
+    core.style.height = '12px';
+    core.style.background = palette[0];
+    core.style.animationDelay = (delay + 2.0) + 's';
+    core.style.setProperty('--rose-rot', '0deg');
+    rose.appendChild(core);
+
+    bloom.appendChild(rose);
+    flower.appendChild(bloom);
+    flower.classList.add('grow');
+    return flower;
+  }
+
+  function createHeart() {
+    const heart = document.createElement('div');
+    heart.className = 'heart';
+    const hearts = ['💜', '💜', '💖', '💗', '🌸', '🌷', '🌹', '💐', '✨'];
+    heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+    heart.style.left = Math.random() * 100 + '%';
+    heart.style.bottom = '-40px';
+    heart.style.fontSize = (18 + Math.random() * 18) + 'px';
+    const duration = 4 + Math.random() * 4;
+    heart.style.animationDuration = duration + 's';
+    scene.appendChild(heart);
+    setTimeout(() => heart.remove(), duration * 1000);
+  }
+
+  function createSparkle(x, y) {
+    const sparkle = document.createElement('div');
+    sparkle.className = 'sparkle';
+    sparkle.style.left = x + 'px';
+    sparkle.style.top = y + 'px';
+    scene.appendChild(sparkle);
+    setTimeout(() => sparkle.remove(), 2000);
+  }
+
+  function startAnimation() {
+    btn.classList.add('hidden');
+    setTimeout(() => btn.remove(), 700);
+
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const count = width < 500 ? 8 : 12;
+
+    for (let i = 0; i < count; i++) {
+      const x = (width / count) * i + (width / count / 2) - 60 + (Math.random() * 40 - 20);
+      const scale = 0.6 + Math.random() * 0.6;
+      const delay = Math.random() * 1.2;
+
+      const isRose = Math.random() < 0.5;
+      let flower;
+      if (isRose) {
+        const palette = rosePalettes[Math.floor(Math.random() * rosePalettes.length)];
+        flower = createRose(x, delay, scale, palette);
+      } else {
+        const palette = purplePalettes[Math.floor(Math.random() * purplePalettes.length)];
+        flower = createDaisy(x, delay, scale, palette);
+      }
+      scene.appendChild(flower);
+    }
+
+    setInterval(createHeart, 350);
+
+    let sparkleInterval = setInterval(() => {
+      for (let i = 0; i < 3; i++) {
+        createSparkle(Math.random() * width, Math.random() * height * 0.7);
+      }
+    }, 400);
+
+    message.classList.add('show');
+
+    setTimeout(() => {
+      clearInterval(sparkleInterval);
+    }, 15000);
+  }
+
+  btn.addEventListener('click', startAnimation);
+  btn.addEventListener('touchend', function(e) {
+    e.preventDefault();
+    startAnimation();
+  }, { passive: false });
+})();
+</script>
+</body>
+</html>
